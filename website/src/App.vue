@@ -21,11 +21,11 @@
           href="https://github.com/yomi-digital/munnizza-land/tree/master/website">https://github.com/yomi-digital/munnizza-land</a>
       </p>
     </div>
-    <div class="content" v-if="page === 'contribute'" style="padding: 30px">
-      <h1>Come funziona?</h1>
+    <div class="content" v-if="page === 'contribute'" style="padding: 0 30px">
+      <h2>Come funziona?</h2>
       Scegli la tua applicazione di messaggistica preferita e clicca per iniziare la chat 💬.<br><br>
       Tramite la chat potrai inviare la foto 📸 e la posizione 📍 della segnalazione!<br><br>
-      Entro massimo 24h vedrai aggiunta la posizione sulla mappa!<br><br><br>
+      Le segnalazioni sono tutte completamente anonime 🥸 per cui non temere per la tua privacy!<br><br><br>
       <a class="btn" href="https://wa.me/393312296579"><i class="fa-brands fa-whatsapp"></i> WHATSAPP</a><br><br>
       <a class="btn" href="https://t.me/munnizzaland_bot"><i class="fa-brands fa-telegram"></i> TELEGRAM</a>
     </div>
