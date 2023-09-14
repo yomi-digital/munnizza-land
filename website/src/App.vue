@@ -21,13 +21,13 @@
           href="https://github.com/yomi-digital/munnizza-land/tree/master/website">https://github.com/yomi-digital/munnizza-land</a>
       </p>
     </div>
-    <div class="content" v-if="page === 'contribute'" style="padding: 0 30px">
+    <div class="content" v-if="page === 'contribute'">
       <h2>Come funziona?</h2>
       Scegli la tua applicazione di messaggistica preferita e clicca per iniziare la chat 💬.<br><br>
       Tramite la chat potrai inviare la foto 📸 e la posizione 📍 della segnalazione!<br><br>
       Le segnalazioni sono tutte completamente anonime 🥸 per cui non temere per la tua privacy!<br><br><br>
       <a class="btn" href="https://wa.me/393312296579?text=Vorrei%20contribuire!"><i class="fa-brands fa-whatsapp"></i> WHATSAPP</a><br><br>
-      <a class="btn" href="https://t.me/munnizzaland_bot"><i class="fa-brands fa-telegram"></i> TELEGRAM</a>
+      <a class="btn" href="https://t.me/munnizzaland_bot"><i class="fa-brands fa-telegram"></i> TELEGRAM</a><br><br>
     </div>
     <div
       style="text-align: center; margin-top: 10px; background-color: #499643; font-size: 9px; position:fixed; bottom:0;left:0;width:100%;padding:20px 0">
@@ -49,8 +49,9 @@ html {
 
 .content {
   text-align: center;
-  padding: 20px;
-  height: calc(100vh - 170px);
+  padding: 0 20px;
+  height: calc(100vh - 135px);
+  overflow-y: auto;
 }
 
 a {
