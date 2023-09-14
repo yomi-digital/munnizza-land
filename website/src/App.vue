@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="position:relative; height: 70px;">
-      <img src="/logo_h.png" style="height:50px; margin-top:5px; margin-left:10px" />
+      <img src="/logo_h.png" @click="page = 'map'" style="height:40px; margin-top:10px; margin-left:10px; cursor: pointer;" />
       <span @click="page = 'contribute'" v-if="page === 'map'" class="menu-btn">
         CONTRIBUISCI
       </span>
@@ -30,7 +30,7 @@
       <a class="btn" href="https://t.me/munnizzaland_bot"><i class="fa-brands fa-telegram"></i> TELEGRAM</a>
     </div>
     <div
-      style="text-align: center; margin-top: 10px; font-size: 9px; position:fixed; bottom:0;left:0;width:100%;padding:20px 0">
+      style="text-align: center; margin-top: 10px; background-color: #499643; font-size: 9px; position:fixed; bottom:0;left:0;width:100%;padding:20px 0">
       Munnizza.Land è un progetto
       <a href="https://github.com/yomi-digital/munnizza-land" target="_blank">open-source</a>
       realizzato da <a href="https://yomi.digital" target="_blank">YOMI</a>
@@ -87,8 +87,8 @@ a {
 }
 
 #map {
-  height: calc(100vh - 125px);
-  border-radius: 10px;
+  height: calc(100vh - 130px);
+  border-radius: 15px;
 }
 </style>
 <script>
