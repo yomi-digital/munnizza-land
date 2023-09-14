@@ -1,7 +1,8 @@
 <template>
   <div>
     <div style="position:relative; height: 70px;">
-      <img src="/logo_h.png" @click="page = 'map'" style="height:40px; margin-top:10px; margin-left:10px; cursor: pointer;" />
+      <img src="/logo_h.png" @click="page = 'map'"
+        style="height:40px; margin-top:10px; margin-left:10px; cursor: pointer;" />
       <span @click="page = 'contribute'" v-if="page === 'map'" class="menu-btn">
         CONTRIBUISCI
       </span>
@@ -26,7 +27,8 @@
       Scegli la tua applicazione di messaggistica preferita e clicca per iniziare la chat 💬.<br><br>
       Tramite la chat potrai inviare la foto 📸 e la posizione 📍 della segnalazione!<br><br>
       Le segnalazioni sono tutte completamente anonime 🥸 per cui non temere per la tua privacy!<br><br><br>
-      <a class="btn" href="https://wa.me/393312296579?text=Vorrei%20contribuire!"><i class="fa-brands fa-whatsapp"></i> WHATSAPP</a><br><br>
+      <a class="btn" href="https://wa.me/393312296579?text=Vorrei%20contribuire!"><i class="fa-brands fa-whatsapp"></i>
+        WHATSAPP</a><br><br>
       <a class="btn" href="https://t.me/munnizzaland_bot"><i class="fa-brands fa-telegram"></i> TELEGRAM</a><br><br>
     </div>
     <div
@@ -70,6 +72,10 @@ a {
 .btn:hover {
   background-color: #fff;
   color: #499643;
+}
+
+.info-window {
+  color: black;
 }
 
 .menu-btn {
@@ -138,6 +144,7 @@ export default {
         const markersDB = await axios.get(import.meta.env.VITE_API_URL + "/markers");
         // Init map markers
         const markers = [];
+        const infoWindows = [];
         for (let k in markersDB.data) {
           const marker = markersDB.data[k];
           // Creating info window
@@ -147,9 +154,9 @@ export default {
             (new Date(marker.timestamp).getMonth() + 1) +
             "/" +
             new Date(marker.timestamp).getFullYear();
-          const infowindow = new google.maps.InfoWindow({
+          infoWindows[marker.photo] = new google.maps.InfoWindow({
             content:
-              `<div>
+              `<div class="info-window">
           <img src="` +
               marker.photo +
               `" width="100%"><br><br>
@@ -167,7 +174,10 @@ export default {
           });
           // Attach info window
           markers[marker._id].addListener("click", () => {
-            infowindow.open({
+            for (let k in infoWindows) {
+              infoWindows[k].close();
+            }
+            infoWindows[marker.photo].open({
               anchor: markers[marker._id],
               map,
             });
