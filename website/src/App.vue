@@ -131,8 +131,8 @@ export default {
       });
       maps.load().then(async (google) => {
         const map = new google.maps.Map(document.getElementById("map"), {
-          center: { lat: 36.925935, lng: 14.739502 },
-          zoom: 10,
+          center: { lat: 37.5107216, lng: 13.8660002 },
+          zoom: 7.3,
         });
         const markersDB = await axios.get(import.meta.env.VITE_API_URL + "/markers");
         // Init map markers
