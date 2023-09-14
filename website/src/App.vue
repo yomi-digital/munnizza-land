@@ -81,8 +81,14 @@ a {
 .open-photo {
   position: absolute;
   bottom: 15px;
-  right: 18px;
-  color: #000;
+  right: 8px;
+}
+
+.open-photo a {
+  color: #499643;
+  text-decoration: none;
+  font-size: 20px;
+  margin: 0 5px;
 }
 
 .menu-btn {
@@ -170,9 +176,15 @@ export default {
           <img src="` +
               marker.photo +
               `" width="100%"><br><br>
-          Aggiunta in data: ` +
+              ` +
               data +
-              `<a href="${marker.photo}" class="open-photo" target="_blank">APRI</span></div>`,
+              `
+              <div class="open-photo">
+              <a href="https://www.google.com/maps/search/?api=1&query=${marker.location.coordinates[1]},${marker.location.coordinates[0]}" target="_blank">
+                <i class="fa-solid fa-location-dot"></i>
+              </a>
+              <a href="${marker.photo}" target="_blank"><i class="fa-solid fa-camera"></i></a>
+              </div></div>`,
           });
           // Init marker
           markers[marker._id] = new google.maps.Marker({
