@@ -78,6 +78,13 @@ a {
   color: black;
 }
 
+.open-photo {
+  position: absolute;
+  bottom: 15px;
+  right: 18px;
+  color: #000;
+}
+
 .menu-btn {
   position: absolute;
   top: 0;
@@ -128,6 +135,9 @@ export default {
     };
   },
   methods: {
+    showBig(photo) {
+      window.open(photo, '_blank');
+    },
     async initMap() {
       // Downloading data from API
       // Init map object
@@ -162,7 +172,7 @@ export default {
               `" width="100%"><br><br>
           Aggiunta in data: ` +
               data +
-              `</div>`,
+              `<a href="${marker.photo}" class="open-photo" target="_blank">APRI</span></div>`,
           });
           // Init marker
           markers[marker._id] = new google.maps.Marker({
