@@ -26,7 +26,7 @@
       Scegli la tua applicazione di messaggistica preferita e clicca per iniziare la chat 💬.<br><br>
       Tramite la chat potrai inviare la foto 📸 e la posizione 📍 della segnalazione!<br><br>
       Le segnalazioni sono tutte completamente anonime 🥸 per cui non temere per la tua privacy!<br><br><br>
-      <a class="btn" href="https://wa.me/393312296579"><i class="fa-brands fa-whatsapp"></i> WHATSAPP</a><br><br>
+      <a class="btn" href="https://wa.me/393312296579?text=Vorrei%20contribuire!"><i class="fa-brands fa-whatsapp"></i> WHATSAPP</a><br><br>
       <a class="btn" href="https://t.me/munnizzaland_bot"><i class="fa-brands fa-telegram"></i> TELEGRAM</a>
     </div>
     <div
