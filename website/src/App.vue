@@ -19,7 +19,8 @@
         <div v-if="searching" style="position:absolute; top: 10px; right: 10px; color: #000; font-size: 10px;">
           ...
         </div>
-        <div v-if="searcher.length > 0" @click="initMap();searcher='';results=[];" style="cursor: pointer;position:absolute; top: 10px; right: 10px; color: #000; font-size: 10px;">
+        <div v-if="searcher.length > 0" @click="initMap(); searcher = ''; results = [];"
+          style="cursor: pointer;position:absolute; top: 10px; right: 10px; color: #000; font-size: 10px;">
           RESET
         </div>
         <div v-if="results"
@@ -31,6 +32,10 @@
         </div>
       </div>
       <div id="map"></div>
+      <div @click="locateUser"
+        style="position: fixed; bottom:45px; right:5px; background:#499643; width:80px; height: 80px; line-height: 80px; border: 1px solid #fff; font-size: 35px; border-radius:50px; z-index:99; ">
+        <i class="fa-solid fa-location-arrow"></i>
+      </div>
     </div>
     <div class="content" v-if="page === 'privacy'">
       <h1>Privacy Policy</h1>
@@ -130,6 +135,7 @@ a {
 #map {
   height: calc(100vh - 130px);
   border-radius: 15px;
+  border-bottom-right-radius: 130px;
 }
 </style>
 <script>
@@ -140,6 +146,7 @@ export default {
   name: "Home",
   async mounted() {
     // Get URL
+    const app = this;
     const url = new URL(window.location.href);
     if (url.hash === "#/privacy" || url.hash === "#/terms") {
       this.page = "privacy";
@@ -167,14 +174,29 @@ export default {
       searching: false,
       searchDelay: null,
       results: [],
-      map: null,
+      map: null
     };
   },
   methods: {
+    locateUser() {
+      const app = this
+      const successCallback = (position) => {
+        console.log("Position accepted", position.coords)
+        if (position.accuracy < 100) {
+          app.initMap([position.coords.latitude, position.coords.longitude])
+        } else {
+          alert("Non siamo riusciti a localizzarti, riprova più tardi!")
+        }
+      };
+      const errorCallback = (error) => {
+        console.log(error);
+      };
+      navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+    },
     showBig(photo) {
       window.open(photo, '_blank');
     },
-    async initMap() {
+    async initMap(userLocation = null) {
       // Downloading data from API
       // Init map object
       const maps = new Loader({
@@ -183,10 +205,14 @@ export default {
         mapTypeId: 'satellite'
       });
       maps.load().then(async (google) => {
-        app.map = new google.maps.Map(document.getElementById("map"), {
-          center: { lat: 37.5107216, lng: 13.8660002 },
-          zoom: 7.3,
-        });
+        let center = { lat: 37.5107216, lng: 13.8660002 }
+        let zoom = 7.3
+        console.log("User location is:", userLocation)
+        if (userLocation !== null) {
+          center = { lat: userLocation[0], lng: userLocation[1] }
+          zoom = 13
+        }
+        app.map = new google.maps.Map(document.getElementById("map"), { center, zoom });
         const markersDB = await axios.get(import.meta.env.VITE_API_URL + "/markers");
         // Init map markers
         const markers = [];
