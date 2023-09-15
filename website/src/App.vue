@@ -181,11 +181,7 @@ export default {
       const app = this
       const successCallback = (position) => {
         console.log("Position accepted", position.coords)
-        if (position.accuracy < 100) {
-          app.initMap([position.coords.latitude, position.coords.longitude])
-        } else {
-          alert("Non siamo riusciti a localizzarti, riprova più tardi!")
-        }
+        app.initMap([position.coords.latitude, position.coords.longitude])
       };
       const errorCallback = (error) => {
         console.log(error);
