@@ -10,7 +10,28 @@
         MAPPA
       </span>
     </div>
-    <div id="map" v-if="page === 'map'"></div>
+    <div v-if="page === 'map'" style="text-align: center;">
+      <br>
+      <div style="position:relative;padding:0 20px 0 0 ">
+        <input type="text" placeholder="Cerca un indirizzo..."
+          style="width: 100%; padding: 10px; display: inline-block; border: 0; border-radius: 5px; margin-bottom: 10px;"
+          v-model="searcher" /><br>
+        <div v-if="searching" style="position:absolute; top: 10px; right: 10px; color: #000; font-size: 10px;">
+          ...
+        </div>
+        <div v-if="searcher.length > 0" @click="initMap();searcher='';results=[];" style="cursor: pointer;position:absolute; top: 10px; right: 10px; color: #000; font-size: 10px;">
+          RESET
+        </div>
+        <div v-if="results"
+          style="position: absolute; top:38px; border-radius:5px; left: 0; width:100%; z-index: 99; max-height: 190px; overflow-y: auto;">
+          <div v-for="result in results" @click="searchMarkers(result.center)"
+            style="padding: 10px; cursor:pointer; font-size:10px; background:#fff; border-bottom:1px solid #bbb; color:#000">
+            {{ result.place_name }}
+          </div>
+        </div>
+      </div>
+      <div id="map"></div>
+    </div>
     <div class="content" v-if="page === 'privacy'">
       <h1>Privacy Policy</h1>
       <p>
@@ -134,10 +155,19 @@ export default {
         this.initMap();
       }
     },
+    searcher: function () {
+      clearTimeout(this.searchDelay)
+      this.initSearch()
+    }
   },
   data() {
     return {
       page: "",
+      searcher: "",
+      searching: false,
+      searchDelay: null,
+      results: [],
+      map: null,
     };
   },
   methods: {
@@ -153,7 +183,7 @@ export default {
         mapTypeId: 'satellite'
       });
       maps.load().then(async (google) => {
-        const map = new google.maps.Map(document.getElementById("map"), {
+        app.map = new google.maps.Map(document.getElementById("map"), {
           center: { lat: 37.5107216, lng: 13.8660002 },
           zoom: 7.3,
         });
@@ -192,7 +222,91 @@ export default {
               lat: marker.location.coordinates[1],
               lng: marker.location.coordinates[0],
             },
-            map: map,
+            map: app.map,
+          });
+          // Attach info window
+          markers[marker._id].addListener("click", () => {
+            for (let k in infoWindows) {
+              infoWindows[k].close();
+            }
+            infoWindows[marker.photo].open({
+              anchor: markers[marker._id],
+              map,
+            });
+          });
+        }
+      })
+    },
+    async initSearch() {
+      const app = this
+      if (app.searcher.length > 3 && !app.searching) {
+        app.searching = true
+        const search = await axios.post(import.meta.env.VITE_API_URL + "/search", {
+          search: app.searcher + ", Sicily, Italy"
+        });
+        app.searching = false
+        console.log("Search results:", search.data)
+        if (search.data.results.features !== undefined) {
+          app.results = search.data.results.features
+        }
+      } else {
+        app.searchDelay = setTimeout(function () {
+          app.initSearch()
+        }, 500)
+      }
+    },
+    async searchMarkers(location) {
+      const app = this
+      app.results = []
+      const markersDB = await axios.post(import.meta.env.VITE_API_URL + "/search", {
+        location: location,
+        distance: 50000
+      });
+      const maps = new Loader({
+        apiKey: import.meta.env.VITE_MAPS_KEY,
+        version: "weekly",
+        mapTypeId: 'satellite'
+      });
+      maps.load().then(async (google) => {
+        app.map = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: location[1], lng: location[0] },
+          zoom: 13,
+        });
+        // Init map markers
+        const markers = [];
+        const infoWindows = [];
+        for (let k in markersDB.data.markers) {
+          const marker = markersDB.data.markers[k];
+          // Creating info window
+          const data =
+            new Date(marker.timestamp).getDate() +
+            "/" +
+            (new Date(marker.timestamp).getMonth() + 1) +
+            "/" +
+            new Date(marker.timestamp).getFullYear();
+          infoWindows[marker.photo] = new google.maps.InfoWindow({
+            content:
+              `<div class="info-window">
+          <img src="` +
+              marker.photo +
+              `" width="100%"><br><br>
+              ` +
+              data +
+              `
+              <div class="open-photo">
+              <a href="https://www.google.com/maps/search/?api=1&query=${marker.location.coordinates[1]},${marker.location.coordinates[0]}" target="_blank">
+                <i class="fa-solid fa-location-dot"></i>
+              </a>
+              <a href="${marker.photo}" target="_blank"><i class="fa-solid fa-camera"></i></a>
+              </div></div>`,
+          });
+          // Init marker
+          markers[marker._id] = new google.maps.Marker({
+            position: {
+              lat: marker.location.coordinates[1],
+              lng: marker.location.coordinates[0],
+            },
+            map: app.map,
           });
           // Attach info window
           markers[marker._id].addListener("click", () => {
