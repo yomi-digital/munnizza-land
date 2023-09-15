@@ -11,10 +11,9 @@
       </span>
     </div>
     <div v-if="page === 'map'" style="text-align: center;">
-      <br>
-      <div style="position:relative;padding:0 20px 0 0 ">
+      <div style="position:relative;padding:0 30px 0 0 ">
         <input type="text" placeholder="Cerca un indirizzo..."
-          style="width: 100%; padding: 10px; display: inline-block; border: 0; border-radius: 5px; margin-bottom: 10px;"
+          style="width: 100%; padding: 10px 15px; display: inline-block; border: 0; border-radius: 15px; margin-bottom: 10px;"
           v-model="searcher" /><br>
         <div v-if="searching" style="position:absolute; top: 10px; right: 10px; color: #000; font-size: 10px;">
           ...
