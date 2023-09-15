@@ -3,7 +3,7 @@ import fs from 'fs'
 import axios from 'axios'
 import mongoose from 'mongoose'
 import { reportSchema, adminSchema } from './database.js'
-import { uploadFileOnPinata } from './pinata.js'
+import { uploadFileOnPinata } from './ipfs.js'
 import { help } from './shared.js'
 dotenv.config()
 const token = process.env.WHATSAPP_TOKEN;
@@ -79,15 +79,15 @@ export async function processWebhook(req, res) {
                                 const uploaded = await uploadFileOnPinata(file, fileId + '.jpg')
                                 console.log("Upload on Pinata result:", uploaded)
                                 if (uploaded === false) {
-                                    await sendMessage(phone_number_id, user, "C'è stato un problema con l'upload della foto, riprova!");
+                                    await sendMessageToWhatsapp(phone_number_id, user, "C'è stato un problema con l'upload della foto, riprova!");
                                 } else {
                                     reports[phone_number_id].photo = process.env.PINATA_ENDPOINT + "/ipfs/" + uploaded
                                     const reportModel = mongoose.model('report', reportSchema);
                                     const checkPhoto = await reportModel.findOne({ photo: reports[phone_number_id].photo })
                                     if (checkPhoto === null) {
-                                        await sendMessage(phone_number_id, user, "Ok, ora allega la tua 📍 posizione, così da poterla accoppiare con la foto e geolocalizzare la discarica.");
+                                        await sendMessageToWhatsapp(phone_number_id, user, "Ok, ora allega la tua 📍 posizione, così da poterla accoppiare con la foto e geolocalizzare la discarica.");
                                     } else {
-                                        await sendMessage(phone_number_id, user, "Questa foto è già stata segnalata, grazie per la collaborazione!")
+                                        await sendMessageToWhatsapp(phone_number_id, user, "Questa foto è già stata segnalata, grazie per la collaborazione!")
                                         reports[phone_number_id] = {
                                             photo: "",
                                             location: {}
@@ -96,7 +96,7 @@ export async function processWebhook(req, res) {
                                 }
                             })
                             .on('error', async e => {
-                                await sendMessage(phone_number_id, user, 'Abbiamo riscontrato un problema con la foto, prova di nuovo..');
+                                await sendMessageToWhatsapp(phone_number_id, user, 'Abbiamo riscontrato un problema con la foto, prova di nuovo..');
                             })
                     }
                 }
@@ -117,7 +117,7 @@ export async function processWebhook(req, res) {
                         if (check === null) {
                             const report = new reportModel();
                             report.photo = reports[phone_number_id].photo
-                            report.from = phone_number_id // Take id not actual number
+                            report.from = phone_number_id + "@" + user
                             report.location = {
                                 "type": "Point",
                                 "coordinates": [
@@ -132,18 +132,18 @@ export async function processWebhook(req, res) {
                             await report.save();
                             await reportModel.findOne({ photo: reports[phone_number_id].photo })
 
-                            await sendMessage(phone_number_id, user, `🎉🎉🎉 Ben fatto, non resta che aspettare l'approvazione\! Impieghiamo massimo 24h\!\n\nGrazie per aver partecipato all'iniziativa di MunnizzaLand\. Le tue segnalazioni sono importanti, continua ad aiutarci\!\n\nPuoi vedere la mappa di tutte le segnalazioni approvate sul sito di Munnizza\.Land:\n\nhttps://munnizza\.land`)
+                            await sendMessageToWhatsapp(phone_number_id, user, `🎉🎉🎉 Ben fatto, non resta che aspettare l'approvazione\! Impieghiamo massimo 24h\!\n\nGrazie per aver partecipato all'iniziativa di MunnizzaLand\. Le tue segnalazioni sono importanti, continua ad aiutarci\!\n\nPuoi vedere la mappa di tutte le segnalazioni approvate sul sito di Munnizza\.Land:\n\nhttps://munnizza\.land`)
 
                             // SEND IMAGE TO ADMIN
                             const adminModel = mongoose.model('admins', adminSchema);
                             const admin = await adminModel.findOne({ approved: true })
                             if (admin !== null && admin.whatsapp_phone_number !== undefined && admin.whatsapp_user !== undefined) {
-                                await sendMessage(admin.whatsapp_phone_number, admin.whatsapp_user, "Devi validare una foto, usa /validate su Telegram per iniziare la procedura!")
+                                await sendMessageToWhatsapp(admin.whatsapp_phone_number, admin.whatsapp_user, "Devi validare una foto, usa /validate su Telegram per iniziare la procedura!")
                             } else {
                                 console.log("Non posso notificare nessuno..")
                             }
                         } else {
-                            await sendMessage(phone_number_id, user, "Questa foto è già stata segnalata, grazie per la collaborazione!")
+                            await sendMessageToWhatsapp(phone_number_id, user, "Questa foto è già stata segnalata, grazie per la collaborazione!")
                         }
                         // Reset in-memory report
                         reports[phone_number_id] = {
@@ -151,7 +151,7 @@ export async function processWebhook(req, res) {
                             location: {}
                         }
                     } else {
-                        await sendMessage(phone_number_id, user, "Per favore, invia prima la foto della discarica!");
+                        await sendMessageToWhatsapp(phone_number_id, user, "Per favore, invia prima la foto della discarica!");
                     }
                 }
                 // Check if the message is a text
@@ -164,7 +164,7 @@ export async function processWebhook(req, res) {
                         console.log("PHONE NUMBER ID:", phone_number_id)
                         console.log("PHONE NUMBER:", user)
                     } else if (!found) {
-                        await sendMessage(phone_number_id, user, help)
+                        await sendMessageToWhatsapp(phone_number_id, user, help)
                     }
                 }
             }
@@ -180,7 +180,7 @@ export async function processWebhook(req, res) {
     }
 }
 
-function sendMessage(phone_number_id, user, message) {
+export function sendMessageToWhatsapp(phone_number_id, user, message) {
     return new Promise(async response => {
         try {
             const sent = await axios({

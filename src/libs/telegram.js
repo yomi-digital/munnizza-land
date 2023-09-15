@@ -6,14 +6,15 @@ import fs from 'fs'
 import axios from 'axios'
 import mongoose from 'mongoose'
 import { reportSchema, adminSchema } from './database.js'
-import { uploadFileOnPinata } from './pinata.js'
+import { uploadFileOnPinata } from './ipfs.js'
 import { help } from './shared.js'
+import { sendMessageToWhatsapp } from './whatsapp.js'
 dotenv.config()
 let reports = {}
 
 export const runBot = () => {
     const bot = new Telegraf(process.env.BOT_TOKEN)
-    
+
 
     bot.help((ctx) => ctx.reply(help))
     bot.start((ctx) => ctx.reply(help))
@@ -72,7 +73,6 @@ export const runBot = () => {
                     reports[user].location = ctx.update.message.location;
                     const report = new reportModel();
                     report.photo = reports[user].photo
-                    report.from = user
                     report.location = {
                         "type": "Point",
                         "coordinates": [
@@ -204,7 +204,6 @@ export const runBot = () => {
 
     bot.on('message', async (ctx) => {
         try {
-            console.log("Received message request from: " + ctx.update.message.from.username)
             const adminModel = mongoose.model('admins', adminSchema);
             const admin = await adminModel.findOne({ username: ctx.update.message.from.username, approved: true })
             if (admin !== null) {
@@ -219,17 +218,29 @@ export const runBot = () => {
                             report.approved = true
                             await report.save()
                             await ctx.reply("Report validato correttamente!")
+                            const acceptMsg = "Grazie, il tuo report è stato accettato ed inserito nella mappa!"
+                            // Removing temporary user reference
                             if (report.source === 'telegram') {
-                                await ctx.telegram.sendMessage(parseInt(report.from), "Grazie, il tuo report è stato accettato ed inserito nella mappa!")
+                                await ctx.telegram.sendMessage(parseInt(report.from), acceptMsg)
+                            } else if (report.source === 'whatsapp' && report.from.split('@').length === 2) {
+                                await sendMessageToWhatsapp(report.from.split('@')[0], report.from.split('@')[1], acceptMsg)
                             }
+                            report.from = undefined
+                            await report.save()
                         } else {
                             report.evalued = true
                             report.approved = false
                             await report.save()
                             await ctx.reply("Report ignorato correttamente!")
+                            const denyMsg = "Ci dispiace, ma il tuo report non è stato ritenuto idoneo ad essere inserito!"
+                            // Removing temporary user reference
                             if (report.source === 'telegram') {
-                                await ctx.telegram.sendMessage(parseInt(report.from), "Ci dispiace, ma il tuo report non è stato ritenuto idoneo ad essere inserito!")
+                                await ctx.telegram.sendMessage(parseInt(report.from), denyMsg)
+                            } else if (report.source === 'whatsapp' && report.from.split('@').length === 2) {
+                                await sendMessageToWhatsapp(report.from.split('@')[0], report.from.split('@')[1], denyMsg)
                             }
+                            report.from = undefined
+                            await report.save()
                         }
                     } else {
                         await ctx.reply("Questo report non esiste...")
