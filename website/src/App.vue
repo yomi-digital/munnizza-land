@@ -33,7 +33,7 @@
       </div>
       <div id="map"></div>
       <div @click="locateUser"
-        style="position: fixed; bottom:45px; right:5px; background:#499643; width:80px; height: 80px; line-height: 80px; border: 1px solid #fff; font-size: 35px; border-radius:50px; z-index:99; ">
+        style="position: fixed; bottom:45px; right:5px; background:#499643; width:80px; height: 80px; line-height: 80px; cursor: pointer; border: 1px solid #fff; font-size: 35px; border-radius:50px; z-index:99; ">
         <i class="fa-solid fa-location-arrow"></i>
       </div>
     </div>
