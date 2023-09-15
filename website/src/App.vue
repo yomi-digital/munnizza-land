@@ -172,6 +172,7 @@ export default {
       searcher: "",
       searching: false,
       searchDelay: null,
+      markers: [],
       results: [],
       map: null
     };
@@ -210,7 +211,7 @@ export default {
         app.map = new google.maps.Map(document.getElementById("map"), { center, zoom });
         const markersDB = await axios.get(import.meta.env.VITE_API_URL + "/markers");
         // Init map markers
-        const markers = [];
+        app.markers = [];
         const infoWindows = [];
         for (let k in markersDB.data) {
           const marker = markersDB.data[k];
@@ -238,7 +239,7 @@ export default {
               </div></div>`,
           });
           // Init marker
-          markers[marker._id] = new google.maps.Marker({
+          app.markers[marker.photo] = new google.maps.Marker({
             position: {
               lat: marker.location.coordinates[1],
               lng: marker.location.coordinates[0],
@@ -246,12 +247,12 @@ export default {
             map: app.map,
           });
           // Attach info window
-          markers[marker._id].addListener("click", () => {
+          app.markers[marker.photo].addListener("click", () => {
             for (let k in infoWindows) {
               infoWindows[k].close();
             }
             infoWindows[marker.photo].open({
-              anchor: markers[marker._id],
+              anchor: app.markers[marker.photo],
               map,
             });
           });
@@ -294,7 +295,7 @@ export default {
           zoom: 13,
         });
         // Init map markers
-        const markers = [];
+        app.markers = [];
         const infoWindows = [];
         for (let k in markersDB.data.markers) {
           const marker = markersDB.data.markers[k];
@@ -322,7 +323,7 @@ export default {
               </div></div>`,
           });
           // Init marker
-          markers[marker._id] = new google.maps.Marker({
+          app.markers[marker.photo] = new google.maps.Marker({
             position: {
               lat: marker.location.coordinates[1],
               lng: marker.location.coordinates[0],
@@ -330,12 +331,12 @@ export default {
             map: app.map,
           });
           // Attach info window
-          markers[marker._id].addListener("click", () => {
+          app.markers[marker.photo].addListener("click", () => {
             for (let k in infoWindows) {
               infoWindows[k].close();
             }
             infoWindows[marker.photo].open({
-              anchor: markers[marker._id],
+              anchor: app.markers[marker.photo],
               map,
             });
           });
