@@ -3,11 +3,12 @@ import fs from 'fs'
 import mongoose, { set } from 'mongoose'
 import express from 'express'
 import cors from 'cors'
-import { reportSchema } from './libs/database.js'
+import { returnAllMarkers, searchNearLocation } from './libs/database.js'
 import { runBot } from './libs/telegram.js'
 import { getWebhook, processWebhook } from './libs/whatsapp.js'
 import body_parser from 'body-parser'
 import { secureDB } from './libs/ipfs.js'
+import axios from 'axios'
 
 console.log("🤖 LOADING ENVIRONMENT..")
 dotenv.config()
@@ -37,20 +38,47 @@ app.get('/', (req, res) => {
 
 app.get('/markers', async (req, res) => {
     try {
-        const reportModel = mongoose.model('report', reportSchema);
-        const reports = await reportModel.find({ approved: true })
-        let parsed = []
-        for (let k in reports) {
-            parsed.push({
-                photo: reports[k].photo,
-                location: reports[k].location,
-                timestamp: reports[k].timestamp,
-                source: reports[k].source
-            })
+        const markers = await returnAllMarkers()
+        if (markers === false) {
+            res.send("E' successo qualcosa di strano..riprova!")
+        } else {
+            res.send(markers)
         }
-        res.send(parsed)
     } catch (e) {
-        res.send("E' successo qualcosa di strano..-riprova!")
+        console.log(e)
+        res.send("E' successo qualcosa di strano..riprova!")
+    }
+})
+app.post('/search', async (req, res) => {
+    try {
+        if (req.body.location !== undefined || req.body.search !== undefined) {
+            let distance = 10000
+            if (req.body.distance !== undefined) {
+                distance = req.body.distance
+            }
+            let location = req.body.location
+            if (req.body.search !== undefined) {
+                let search
+                if (process.env.MAPBOX_TOKEN === undefined) {
+                    search = await axios.get('https://nominatim.openstreetmap.org/search?q=' + req.body.search + '&format=json')
+                } else {
+                    search = await axios.get('https://api.mapbox.com/geocoding/v5/mapbox.places/' + req.body.search + '.json?access_token=' + process.env.MAPBOX_TOKEN)
+                }
+                if (search.data !== undefined) {
+                    res.send({ results: search.data })
+                } else {
+                    res.send({ message: "Nessun risultato!", error: true })
+                }
+            } else if (req.body.location !== undefined) {
+                const markers = await searchNearLocation(req.body.location, distance)
+                res.send({ location, markers })
+            }
+        } else {
+            res.send({ message: "Malformed request", error: true })
+        }
+    } catch (e) {
+        console.log(e)
+        res.send("E' successo qualcosa di strano..riprova!")
     }
 })
 
