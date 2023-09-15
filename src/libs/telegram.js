@@ -80,6 +80,7 @@ export const runBot = () => {
                             ctx.update.message.location.latitude
                         ]
                     }
+                    report.from = user
                     report.source = 'telegram'
                     report.approved = false
                     report.evalued = false
