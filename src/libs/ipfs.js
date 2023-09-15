@@ -61,7 +61,7 @@ export function secureDB() {
                     approved: allReports[k].approved,
                 })
             }
-            const db = JSON.stringify(toSecure, null, 4)
+            const db = JSON.stringify({ timestamp: new Date().getTime(), markers: toSecure }, null, 4)
             const dbHash = await uploadFileOnPinata(db, 'munnizzaland_' + new Date().getTime() + '.json')
             if (dbHash !== false) {
                 console.log('🔒 DATABASE SECURED AT:', dbHash)
