@@ -153,6 +153,26 @@ export const runBot = () => {
                     // Sending photo and location
                     await ctx.reply('💥💥Arrivata foto!💥💥\n' + report.photo)
                     await ctx.reply(`https://www.google.com/maps/search/?api=1&query=${report.location.coordinates[1]},${report.location.coordinates[0]}`)
+                    try {
+                        const geocoding = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${report.location.coordinates[0]},${report.location.coordinates[1]}.json?access_token=${process.env.MAPBOX_TOKEN}`)
+                        if (geocoding.data.features !== undefined) {
+                            for (let k in geocoding.data.features) {
+                                const feature = geocoding.data.features[k]
+                                if (feature.place_type[0] === 'poi') {
+                                    await ctx.reply("🏢 " + feature.place_name)
+                                } else if (feature.place_type[0] === 'place') {
+                                    await ctx.reply("🗺️ " + feature.text)
+                                } else if (feature.place_type[0] === 'address') {
+                                    await ctx.reply("🏠 " + feature.text)
+                                }
+                            }
+                        } else {
+                            await ctx.reply("🤓 Non riesco a trovare l'indirizzo..")
+                        }
+                    } catch (e) {
+                        console.log(e.message)
+                        await ctx.reply("🤓 Non riesco a trovare l'indirizzo..")
+                    }
                     toValidate.push(['approve:' + report._id, 'ignore:' + report._id])
                 }
                 const keyboard = Keyboard.make(toValidate)
