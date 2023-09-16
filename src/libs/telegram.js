@@ -150,8 +150,9 @@ export const runBot = () => {
                 let toValidate = []
                 for (let k in reports) {
                     const report = reports[k]
-                    const text = '💥💥Arrivata foto!💥💥\n' + report.photo
-                    await ctx.reply(text)
+                    // Sending photo and location
+                    await ctx.reply('💥💥Arrivata foto!💥💥\n' + report.photo)
+                    await ctx.reply(`https://www.google.com/maps/search/?api=1&query=${report.location.coordinates[1]},${report.location.coordinates[0]}`)
                     toValidate.push(['approve:' + report._id, 'ignore:' + report._id])
                 }
                 const keyboard = Keyboard.make(toValidate)
