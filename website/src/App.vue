@@ -1,142 +1,127 @@
 <template>
-  <div>
-    <div style="position:relative; height: 70px;">
-      <img src="/logo_h.png" @click="page = 'map'"
-        style="height:40px; margin-top:10px; margin-left:10px; cursor: pointer;" />
-      <span @click="page = 'contribute'" v-if="page === 'map'" class="menu-btn">
-        CONTRIBUISCI
-      </span>
-      <span @click="page = 'map'" v-if="page === 'contribute'" class="menu-btn">
-        MAPPA
-      </span>
-    </div>
-    <div v-if="page === 'map'" style="text-align: center;">
-      <div style="position:relative;padding:0 30px 0 0 ">
-        <input type="text" placeholder="Cerca un indirizzo..."
-          style="width: 100%; padding: 10px 15px; display: inline-block; border: 0; border-radius: 15px; margin-bottom: 10px;"
-          v-model="searcher" /><br>
-        <div v-if="searching" style="position:absolute; top: 10px; right: 10px; color: #000; font-size: 10px;">
+  <div class="home">
+    <header style="height: 70px">
+      <div class="logo-cnt">
+        <img src="/logo_h.png" style="margin-top: 5px; margin-left: 10px" draggable="false" class="logo" />
+      </div>
+      <div class="btn-cnt">
+        <button class="flag-btn" v-if="page === 'map'" @click="page = 'contribute'">
+          <img src="../src/assets/img/flag_green.svg" draggable="false" />
+          <span class="menu-btn" style="margin-left: -12px">CONTRIBUISCI</span>
+        </button>
+        <button class="flag-btn" v-if="page === 'contribute'" @click="page = 'map'">
+          <img src="../src/assets/img/flag_black.svg" draggable="false" />
+          <span class="menu-btn" style="color: #afec00; margin-left: 16px">MAPPA</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="title-cnt" v-if="page === 'map'">
+      <h1>
+        Lottiamo insieme<br />
+        contro le discariche
+      </h1>
+      <p>
+        Segnala la discarica abusiva, invia la tua posizione e delle foto, in
+        modo completamente anonimo, tramite WhatsApp o Telegram.<br /><br />
+        Sii parte della soluzione, non del problema!
+      </p>
+
+      <div class="search-cnt">
+        <input type="text" placeholder="Cerca un indirizzo..." v-model="searcher" /><br />
+        <div v-if="searching" style="
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #000;
+            font-size: 10px;
+          ">
           ...
         </div>
-        <div v-if="searcher.length > 0" @click="initMap(); searcher = ''; results = [];"
-          style="cursor: pointer;position:absolute; top: 10px; right: 10px; color: #000; font-size: 10px;">
-          RESET
+        <div v-if="searcher.length > 0" @click="
+          initMap();
+        searcher = '';
+        results = [];
+        " style="
+            cursor: pointer;
+            position: absolute;
+            right: 0;
+            padding: 1rem 2rem;
+            color: white;
+          ">
+          X
         </div>
-        <div v-if="results"
-          style="position: absolute; top:38px; border-radius:5px; left: 0; width:100%; z-index: 99; max-height: 190px; overflow-y: auto;">
-          <div v-for="result in results" @click="searchMarkers(result.center)"
-            style="padding: 10px; cursor:pointer; font-size:10px; background:#fff; border-bottom:1px solid #bbb; color:#000">
+
+        <div v-if="results" class="results-cnt">
+          <div v-for="result in results" :key="result.id" @click="searchMarkers(result.center)" class="city-item"
+            style="cursor: pointer">
             {{ result.place_name }}
           </div>
         </div>
       </div>
-      <div id="map"></div>
-      <div @click="locateUser"
-        style="position: fixed; bottom:45px; right:5px; background:#499643; width:80px; height: 80px; line-height: 80px; cursor: pointer; border: 1px solid #fff; font-size: 35px; border-radius:50px; z-index:99; ">
+    </div>
+    <div class="content-cnt">
+      <div id="map" v-show="page === 'map'"></div>
+      <div v-if="page === 'map'" @click="locateUser" class="locate-btn">
         <i class="fa-solid fa-location-arrow"></i>
       </div>
+      <div class="content" v-if="page === 'privacy'">
+        <h1>Privacy Policy</h1>
+        <p>
+          We don't collect any data, period.<br /><br />
+          We don't use cookies, period.<br /><br />
+          We don't use Google Analytics, period.<br /><br />
+          We don't use any other tracking software, period.<br /><br />
+          Check by your own at
+          <a
+            href="https://github.com/yomi-digital/munnizza-land/tree/master/website">https://github.com/yomi-digital/munnizza-land</a>
+        </p>
+      </div>
+      <div class="content" v-if="page === 'contribute'">
+        <h1>Come funziona?</h1>
+        <p>
+          <span class="num">1.</span> Scegli la tua applicazione di
+          messaggistica preferita e clicca per iniziare la chat.
+          <span class="icon">
+            <img src="./assets/img/howto_txt.svg" alt="" />
+          </span>
+        </p>
+
+        <p>
+          <span class="icon">
+            <img src="./assets/img/howto_ph.svg" alt="" class="ph-icon" />
+          </span>
+          <span class="num">2.</span>Tramite la chat potrai inviare la foto e la
+          posizione della segnalazione!
+        </p>
+        <p>
+          <span class="num">3.</span> Entro massimo 24h vedrai aggiunta la
+          posizione sulla mappa!
+          <span class="icon">
+            <img src="./assets/img/howto_mark.svg" alt="" />
+          </span>
+          <br /><br /><br />
+        </p>
+        <div class="contact-btns">
+          <a class="flag-btn" href="https://wa.me/393312296579">
+            <img src="./assets/img/flag_green.svg" alt="" draggable="false" />
+            <span style="margin-left: -12px">WHATSAPP </span>
+          </a>
+          <a class="flag-btn" href="https://t.me/munnizzaland_bot">
+            <img src="./assets/img/flag_green.svg" alt="" draggable="false" />
+            <span style="margin-left: -12px">TELEGRAM</span>
+          </a>
+        </div>
+      </div>
     </div>
-    <div class="content" v-if="page === 'privacy'">
-      <h1>Privacy Policy</h1>
-      <p>
-        We don't collect any data, period.<br><br>
-        We don't use cookies, period.<br><br>
-        We don't use Google Analytics, period.<br><br>
-        We don't use any other tracking software, period.<br><br>
-        Check by your own at <a
-          href="https://github.com/yomi-digital/munnizza-land/tree/master/website">https://github.com/yomi-digital/munnizza-land</a>
-      </p>
-    </div>
-    <div class="content" v-if="page === 'contribute'">
-      <h2>Come funziona?</h2>
-      Scegli la tua applicazione di messaggistica preferita e clicca per iniziare la chat 💬.<br><br>
-      Tramite la chat potrai inviare la foto 📸 e la posizione 📍 della segnalazione!<br><br>
-      Le segnalazioni sono tutte completamente anonime 🥸 per cui non temere per la tua privacy!<br><br><br>
-      <a class="btn" href="https://wa.me/393312296579?text=Vorrei%20contribuire!"><i class="fa-brands fa-whatsapp"></i>
-        WHATSAPP</a><br><br>
-      <a class="btn" href="https://t.me/munnizzaland_bot"><i class="fa-brands fa-telegram"></i> TELEGRAM</a><br><br>
-    </div>
-    <div
-      style="text-align: center; margin-top: 10px; background-color: #499643; font-size: 9px; position:fixed; bottom:0;left:0;width:100%;padding:20px 0">
+    <footer>
       Munnizza.Land è un progetto
       <a href="https://github.com/yomi-digital/munnizza-land" target="_blank">open-source</a>
       realizzato da <a href="https://yomi.digital" target="_blank">YOMI</a>
-    </div>
+    </footer>
   </div>
 </template>
-<style>
-body,
-html {
-  background: #499643;
-  height: 100vh;
-  overflow: hidden;
-  font-family: "Roboto Mono", monospace !important;
-  color: #fff;
-}
 
-.content {
-  text-align: center;
-  padding: 0 20px;
-  height: calc(100vh - 135px);
-  overflow-y: auto;
-}
-
-a {
-  color: #eee;
-  text-decoration: underline;
-}
-
-.btn {
-  padding: 20px;
-  text-decoration: none;
-  border: 1px solid #fff;
-  border-radius: 30px;
-  display: inline-block;
-}
-
-.btn:hover {
-  background-color: #fff;
-  color: #499643;
-}
-
-.info-window {
-  color: black;
-}
-
-.open-photo {
-  position: absolute;
-  bottom: 15px;
-  right: 8px;
-}
-
-.open-photo a {
-  color: #499643;
-  text-decoration: none;
-  font-size: 20px;
-  margin: 0 5px;
-}
-
-.menu-btn {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 23px;
-  cursor: pointer;
-  font-size: 13px;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.button {
-  font-family: "Roboto Mono", monospace !important;
-}
-
-#map {
-  height: calc(100vh - 130px);
-  border-radius: 15px;
-  border-bottom-right-radius: 130px;
-}
-</style>
 <script>
 import axios from "axios";
 import { Loader } from "@googlemaps/js-api-loader"
@@ -346,3 +331,4 @@ export default {
   }
 };
 </script>
+
