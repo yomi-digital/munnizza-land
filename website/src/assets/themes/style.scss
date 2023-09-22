@@ -259,11 +259,6 @@ footer {
   }
 }
 
-.mapboxgl-canvas {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
-}
 
 .results-cnt {
   position: absolute;
@@ -294,23 +289,6 @@ footer {
     &:hover {
       background-color: #adec016d;
     }
-  }
-}
-
-.mapboxgl-popup-content {
-  width: fit-content;
-  border-radius: 10px;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
-  color: black;
-
-  h3 {
-    color: black;
-    font-family: var(--texts);
-  }
-
-  .mapboxgl-popup-close-button {
-    right: 0.5rem;
-    top: 0.5rem;
   }
 }
 
